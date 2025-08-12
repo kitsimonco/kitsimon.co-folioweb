@@ -233,6 +233,48 @@
             opacity: 0.7;
         }
 
+        /* New Hamburger Menu */
+        .hamburger-container {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            z-index: 10;
+        }
+
+        .svg-menu {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            cursor: none;
+            transition: transform 0.1s ease-out;
+        }
+
+        .svg-menu:active {
+            transform: scale(0.95);
+        }
+
+        .svg-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .svg-rect {
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-origin: center;
+            fill: #FFFFFF;
+        }
+
+        /* Click state - show arrow pattern */
+        .svg-menu.active .svg-rect:nth-child(1) { opacity: 1; transform: scale(1); }
+        .svg-menu.active .svg-rect:nth-child(2) { opacity: 0; transform: scale(0); }
+        .svg-menu.active .svg-rect:nth-child(3) { opacity: 1; transform: scale(1); }
+        .svg-menu.active .svg-rect:nth-child(4) { opacity: 0; transform: scale(0); }
+        .svg-menu.active .svg-rect:nth-child(5) { opacity: 1; transform: scale(1); }
+        .svg-menu.active .svg-rect:nth-child(6) { opacity: 0; transform: scale(0); }
+        .svg-menu.active .svg-rect:nth-child(7) { opacity: 1; transform: scale(1); }
+        .svg-menu.active .svg-rect:nth-child(8) { opacity: 0; transform: scale(0); }
+        .svg-menu.active .svg-rect:nth-child(9) { opacity: 1; transform: scale(1); }
+
         /* Main Content */
         .main-content {
             position: relative;
@@ -405,6 +447,23 @@
         <a href="#" class="nav-item">contact</a>
     </nav>
     
+    <!-- New Hamburger Menu -->
+    <div class="hamburger-container">
+        <button class="svg-menu" id="menuBtn">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+                <rect class="svg-rect" x="2" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="10" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="18" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="2" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="10" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="18" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="2" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="10" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+                <rect class="svg-rect" x="18" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+            </svg>
+        </button>
+    </div>
+    
     <!-- Main Content -->
     <div class="main-content">
         <!-- Right Text Block -->
@@ -426,58 +485,84 @@
         <div class="footer-right">
             <a href="https://instagram.com/kristiannemblanc" target="_blank">instagram: @kristiannemblanc</a>
         </div>
-            </footer>
-    </div>
+    </footer>
     
-            <script>
-            // Custom Cursor
-            const cursor = document.getElementById('customCursor');
-            
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('customCursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        
+        // Add hover effect on interactive elements
+        const interactiveElements = document.querySelectorAll('a, button, .nav-item');
+        
+        interactiveElements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
             });
             
-            // Add hover effect on interactive elements
-            const interactiveElements = document.querySelectorAll('a, button, .nav-item');
+            element.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+            });
+        });
+
+        // New Hamburger Menu Logic
+        const menuBtn = document.getElementById('menuBtn');
+
+        // Track mouse movement and move button to follow cursor
+        menuBtn.addEventListener('mousemove', (e) => {
+            const rect = menuBtn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
             
-            interactiveElements.forEach(element => {
-                element.addEventListener('mouseenter', () => {
-                    cursor.classList.add('hover');
-                });
+            // Limit movement range (max 15px from center)
+            const maxMove = 15;
+            const limitedX = Math.max(-maxMove, Math.min(maxMove, x * 0.4));
+            const limitedY = Math.max(-maxMove, Math.min(maxMove, y * 0.4));
+            
+            menuBtn.style.transform = `translate(${limitedX}px, ${limitedY}px)`;
+        });
+
+        // Reset position when mouse leaves button
+        menuBtn.addEventListener('mouseleave', () => {
+            menuBtn.style.transform = 'translate(0px, 0px)';
+        });
+
+        // Toggle active state on click
+        menuBtn.addEventListener('click', () => {
+            menuBtn.classList.toggle('active');
+        });
+        
+        // Progress Counter Animation
+        function animateProgress() {
+            const progressElement = document.getElementById('progress');
+            let currentValue = 0.000000001;
+            const targetValue = 1.0;
+            const increment = 0.000000001;
+            const interval = 10; // Update every 10ms (much faster)
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
                 
-                element.addEventListener('mouseleave', () => {
-                    cursor.classList.remove('hover');
-                });
-            });
-            
-            // Progress Counter Animation
-            function animateProgress() {
-                const progressElement = document.getElementById('progress');
-                let currentValue = 0.000000001;
-                const targetValue = 1.0;
-                const increment = 0.000000001;
-                const interval = 10; // Update every 10ms (much faster)
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(timer);
+                }
                 
-                const timer = setInterval(() => {
-                    currentValue += increment;
-                    
-                    if (currentValue >= targetValue) {
-                        currentValue = targetValue;
-                        clearInterval(timer);
-                    }
-                    
-                    // Format to 9 decimal places
-                    const formattedValue = currentValue.toFixed(9);
-                    progressElement.textContent = formattedValue;
-                    
-                }, interval);
-            }
-            
-            // Start animation when page loads
-            window.addEventListener('load', () => {
-                setTimeout(animateProgress, 500); // Start after 0.5 second
-            });
-        </script>
-    </body>
-    </html>
+                // Format to 9 decimal places
+                const formattedValue = currentValue.toFixed(9);
+                progressElement.textContent = formattedValue;
+                
+            }, interval);
+        }
+        
+        // Start animation when page loads
+        window.addEventListener('load', () => {
+            setTimeout(animateProgress, 500); // Start after 0.5 second
+        });
+    </script>
+</body>
+</html>
