@@ -393,3 +393,13 @@ body {
         padding: 0 30px;
     }
 }
+
+/* Disable custom cursor on touch / coarse pointer devices */
+@media (hover: none), (pointer: coarse) {
+    body, a, button, .nav-item {
+        cursor: auto;
+    }
+    .custom-cursor {
+        display: none;
+    }
+}
