@@ -1,103 +1,184 @@
-import Image from "next/image";
+// src/app/page.tsx
 
-export default function Home() {
+'use client'; // <-- สำคัญมาก! บอกให้ Next.js รู้ว่าหน้านี้มีโค้ดที่ทำงานฝั่ง Client
+
+import { useState, useEffect, useRef } from 'react';
+
+export default function HomePage() {
+  // --- State Management ---
+  // 1. State สำหรับสถานะของปุ่มเมนู (เปิด/ปิด)
+  const [isMenuPressed, setMenuPressed] = useState(false);
+  // 2. State สำหรับตัวเลข progress ที่จะนับขึ้น
+  const [progress, setProgress] = useState(0.000000001);
+
+  // --- Refs for Direct DOM Access ---
+  // 3. Ref สำหรับชี้ไปยัง element ของ custom cursor และปุ่มเมนู
+  const customCursorRef = useRef<HTMLDivElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
+
+  // --- Effects (จัดการ Logic จาก JavaScript เดิม) ---
+
+  // 4. Effect สำหรับ Custom Cursor
+  useEffect(() => {
+    const cursor = customCursorRef.current;
+    if (!cursor) return;
+
+    // ไม่แสดง custom cursor บนอุปกรณ์ touch
+    const isTouchOrNoHover = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    if (isTouchOrNoHover) {
+      cursor.style.display = 'none';
+      return;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    const interactiveElements = document.querySelectorAll('a, button, .nav-item');
+    const handleMouseEnter = () => cursor.classList.add('hover');
+    const handleMouseLeave = () => cursor.classList.remove('hover');
+
+    interactiveElements.forEach(element => {
+      element.addEventListener('mouseenter', handleMouseEnter);
+      element.addEventListener('mouseleave', handleMouseLeave);
+    });
+
+    // Cleanup function: จะถูกเรียกเมื่อ component ถูกทำลายเพื่อลบ event listeners ออก
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      interactiveElements.forEach(element => {
+        element.removeEventListener('mouseenter', handleMouseEnter);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+      });
+    };
+  }, []); // [] หมายถึงให้ effect นี้ทำงานแค่ครั้งเดียวตอนเริ่มต้น
+
+  // 5. Effect สำหรับปุ่มเมนูที่ขยับตามเมาส์
+  useEffect(() => {
+    const menuBtn = menuBtnRef.current;
+    if (!menuBtn) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = menuBtn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const maxMove = 15;
+      const limitedX = Math.max(-maxMove, Math.min(maxMove, x * 0.4));
+      const limitedY = Math.max(-maxMove, Math.min(maxMove, y * 0.4));
+      menuBtn.style.transform = `translate(${limitedX}px, ${limitedY}px)`;
+    };
+    
+    const handleMouseLeave = () => {
+      menuBtn.style.transform = 'translate(0px, 0px)';
+    };
+
+    menuBtn.addEventListener('mousemove', handleMouseMove);
+    menuBtn.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      menuBtn.removeEventListener('mousemove', handleMouseMove);
+      menuBtn.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  // 6. Effect สำหรับการนับเลข Progress
+  useEffect(() => {
+    const animateProgress = () => {
+      let currentValue = 0.000000001;
+      const targetValue = 1.0;
+      const increment = 0.000000001;
+      
+      const timer = setInterval(() => {
+        currentValue += increment;
+        if (currentValue >= targetValue) {
+          setProgress(targetValue);
+          clearInterval(timer);
+        } else {
+          setProgress(currentValue);
+        }
+      }, 10);
+
+      // Cleanup: หยุด interval ถ้า component หายไป
+      return () => clearInterval(timer);
+    };
+
+    const timeoutId = setTimeout(animateProgress, 500);
+    return () => clearTimeout(timeoutId);
+
+  }, []); // [] ทำงานครั้งเดียว
+
+  // --- Render (แปลง HTML เป็น JSX) ---
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <>
+      {/* Grid Pattern Background */}
+      <div className="grid-pattern"></div>
+      
+      {/* Custom Cursor */}
+      <div className="custom-cursor" ref={customCursorRef}></div>
+      
+      {/* Animated Energy Grid */}
+      <div className="energy-grid">
+        {/* สร้าง energy lines ด้วย Array.from เพื่อโค้ดที่สั้นลง */}
+        {Array.from({ length: 10 }).map((_, i) => <div key={`h-${i}`} className="energy-line"></div>)}
+        {Array.from({ length: 10 }).map((_, i) => <div key={`v-${i}`} className="energy-line-vertical"></div>)}
+      </div>
+      
+      {/* Navigation */}
+      <nav className="nav">
+        <a href="#" className="nav-item">design</a>
+        <a href="#" className="nav-item">about</a>
+        <a href="#" className="nav-item">contact</a>
+      </nav>
+      
+      {/* Hamburger Menu */}
+      <div className="hamburger-container">
+        <button 
+          ref={menuBtnRef}
+          className={`svg-menu ${isMenuPressed ? 'active' : ''}`} // ใช้ state ควบคุม class
+          id="menuBtn" 
+          type="button" 
+          aria-label="Menu" 
+          aria-pressed={isMenuPressed}
+          onClick={() => setMenuPressed(!isMenuPressed)} // เมื่อคลิก ให้สลับค่า state
+        >
+          <svg className="svg-icon" viewBox="0 0 24 24">
+            {/* อย่าลืมใส่ / ปิดท้าย self-closing tags */}
+            <rect className="svg-rect" x="2" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="10" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="18" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="2" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="10" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="18" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="2" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="10" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+            <rect className="svg-rect" x="18" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+          </svg>
+        </button>
+      </div>
+      
+      {/* Main Content */}
+      <div className="main-content">
+        <div className="right-text">
+          <p>uxui designer</p>
+          <p>multidisciplinary designer</p>
+          <p>branding designer</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        
+        <div className="construction-status">
+          <p>in construction - <span className="progress-number">{progress.toFixed(9)}</span>% -</p>
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-left">© All rights reserved kitsimon.co</div>
+        <div className="footer-right">
+          <a href="https://instagram.com/kristiannemblanc" target="_blank" rel="noopener noreferrer">instagram: @kristiannemblanc</a>
+        </div>
       </footer>
-    </div>
+    </>
   );
 }
