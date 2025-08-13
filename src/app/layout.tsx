@@ -14,6 +14,12 @@ const courierPrime = Courier_Prime({
 export const metadata: Metadata = {
   title: "Kit Simon – UX/UI Designer, Branding Specialist",
   description: "Portfolio of Kit Simon, UX/UI designer, branding specialist, and creative director delivering web design, digital branding, and unique user experiences that stand out.",
+  icons: {
+    icon: [
+      { url: '/favicon-light.png?v=1', media: '(prefers-color-scheme: light)' },
+      { url: '/favicon-dark.png?v=1', media: '(prefers-color-scheme: dark)' },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* 4. ใช้ฟอนต์กับ <body> */}
-      <body className={courierPrime.className}> 
+      <body className={courierPrime.className}>
         {children}
       </body>
     </html>
