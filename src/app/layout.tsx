@@ -1,11 +1,11 @@
 // src/app/layout.tsx
 
 import type { Metadata } from "next";
-import { Courier_Prime } from "next/font/google"; // 1. Import ฟอนต์
+import { Poppins } from "next/font/google"; // 1. Import ฟอนต์
 import "./globals.css";
 
 // 2. ตั้งค่าฟอนต์
-const courierPrime = Courier_Prime({
+const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "700"],
 });
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* 4. ใช้ฟอนต์กับ <body> */}
-      <body className={courierPrime.className}>
+      <body className={poppins.className}>
         {children}
       </body>
     </html>
