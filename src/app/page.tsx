@@ -3,13 +3,16 @@
 'use client'; // <-- สำคัญมาก! บอกให้ Next.js รู้ว่าหน้านี้มีโค้ดที่ทำงานฝั่ง Client
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   // --- State Management ---
+  const router = useRouter();
   // 1. State สำหรับสถานะของปุ่มเมนู (เปิด/ปิด)
   const [isMenuPressed, setMenuPressed] = useState(false);
   // 2. State สำหรับตัวเลข progress ที่จะนับขึ้น
   const [progress, setProgress] = useState(0.000000001);
+
 
   // --- Refs for Direct DOM Access ---
   // 3. Ref สำหรับชี้ไปยัง element ของ custom cursor และปุ่มเมนู
@@ -70,7 +73,7 @@ export default function HomePage() {
       const limitedY = Math.max(-maxMove, Math.min(maxMove, y * 0.4));
       menuBtn.style.transform = `translate(${limitedX}px, ${limitedY}px)`;
     };
-    
+
     const handleMouseLeave = () => {
       menuBtn.style.transform = 'translate(0px, 0px)';
     };
@@ -84,13 +87,13 @@ export default function HomePage() {
     };
   }, []);
 
-  // 6. Effect สำหรับการนับเลข Progress
+  // 6. Effect สำหรับการนับเลข Progress (ช้ามาก)
   useEffect(() => {
     const animateProgress = () => {
       let currentValue = 0.000000001;
       const targetValue = 1.0;
       const increment = 0.000000001;
-      
+
       const timer = setInterval(() => {
         currentValue += increment;
         if (currentValue >= targetValue) {
@@ -101,64 +104,61 @@ export default function HomePage() {
         }
       }, 10);
 
-      // Cleanup: หยุด interval ถ้า component หายไป
+      // Cleanup
       return () => clearInterval(timer);
     };
 
     const timeoutId = setTimeout(animateProgress, 500);
     return () => clearTimeout(timeoutId);
-
-  }, []); // [] ทำงานครั้งเดียว
+  }, []);
 
   // --- Render (แปลง HTML เป็น JSX) ---
   return (
     <>
       {/* Grid Pattern Background */}
       <div className="grid-pattern"></div>
-      
+
       {/* Custom Cursor */}
       <div className="custom-cursor" ref={customCursorRef}></div>
-      
+
       {/* Animated Energy Grid */}
       <div className="energy-grid">
         {/* สร้าง energy lines ด้วย Array.from เพื่อโค้ดที่สั้นลง */}
         {Array.from({ length: 10 }).map((_, i) => <div key={`h-${i}`} className="energy-line"></div>)}
         {Array.from({ length: 10 }).map((_, i) => <div key={`v-${i}`} className="energy-line-vertical"></div>)}
       </div>
-      
+
       {/* Navigation */}
       <nav className="nav">
         <a href="#" className="nav-item">design</a>
         <a href="#" className="nav-item">about</a>
         <a href="#" className="nav-item">contact</a>
       </nav>
-      
-      {/* Hamburger Menu */}
-      <div className="hamburger-container">
-        <button 
+
+      {/* Floating Hamburger (Home → Overview) */}
+      <div className="hamburger-container left" style={{ zIndex: 9999 }}>
+        <button
           ref={menuBtnRef}
-          className={`svg-menu ${isMenuPressed ? 'active' : ''}`} // ใช้ state ควบคุม class
-          id="menuBtn" 
-          type="button" 
-          aria-label="Menu" 
-          aria-pressed={isMenuPressed}
-          onClick={() => setMenuPressed(!isMenuPressed)} // เมื่อคลิก ให้สลับค่า state
+          className="svg-menu" // home page: default (not active)
+          type="button"
+          aria-label="Open overview"
+          onClick={() => router.push('/overview')}
         >
-          <svg className="svg-icon" viewBox="0 0 24 24">
-            {/* อย่าลืมใส่ / ปิดท้าย self-closing tags */}
-            <rect className="svg-rect" x="2" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="10" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="18" y="2" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="2" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="10" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="18" y="10" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="2" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="10" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
-            <rect className="svg-rect" x="18" y="18" width="4" height="4" fill="currentColor" rx="0.5"/>
+          <svg className="svg-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect className="svg-rect" x="2" y="2" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="10" y="2" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="18" y="2" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="2" y="10" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="10" y="10" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="18" y="10" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="2" y="18" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="10" y="18" width="4" height="4" rx="0.5" />
+            <rect className="svg-rect" x="18" y="18" width="4" height="4" rx="0.5" />
           </svg>
         </button>
       </div>
-      
+
+
       {/* Main Content */}
       <div className="main-content">
         <div className="right-text">
@@ -166,12 +166,12 @@ export default function HomePage() {
           <p>multidisciplinary designer</p>
           <p>branding designer</p>
         </div>
-        
+
         <div className="construction-status">
           <p>in construction - <span className="progress-number">{progress.toFixed(9)}</span>% -</p>
         </div>
       </div>
-      
+
       {/* Footer */}
       <footer className="footer">
         <div className="footer-left">© All rights reserved kitsimon.co</div>
