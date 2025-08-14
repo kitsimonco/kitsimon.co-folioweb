@@ -37,9 +37,53 @@ export default function OverviewPage() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: '100%', opacity: 0 }}
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                style={{ background: '#000', color: '#111', minHeight: '100vh' }}
+                style={{ background: '#000', color: '#fff', minHeight: '100vh' }}
             >
-                {/* เนื้อหา overview */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '4rem', gap: '4rem' }}>
+                    <div className="section">
+                        <p className="section-title" style={{ fontSize: '0.875rem', color: '#fff', marginBottom: '0.5rem' }}>Social</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <a
+                                href="https://www.instagram.com/kristiannemblanc"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover-reveal"
+                                style={{ fontSize: '1.5rem', fontWeight: '500', color: '#fff', textDecoration: 'none' }}
+                            >
+                                <span>Instagram</span>
+                                <span>Instagram</span>
+                            </a>
+                            <a
+                                href="https://www.linkedin.com/in/kristiannemblanc"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover-reveal"
+                                style={{ fontSize: '1.5rem', fontWeight: '500', color: '#fff', textDecoration: 'none' }}
+                            >
+                                <span>Linkedin</span>
+                                <span>Linkedin</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div className="section">
+                        <p style={{ fontSize: '0.875rem', color: '#fff', marginBottom: '0.5rem' }}>address</p>
+                        <div className="hover-reveal" style={{ fontSize: '1.5rem', fontWeight: '500', color: '#fff' }}>
+                            <span>Originally from bangkok</span>
+                            <span>Originally from bangkok</span>
+                        </div>
+                        <div className="hover-reveal" style={{ fontSize: '1.5rem', fontWeight: '500', color: '#fff' }}>
+                            <span>Working globally</span>
+                            <span>Working globally</span>
+                        </div>
+                    </div>
+                    <div className="section">
+                        <p style={{ fontSize: '0.875rem', color: '#fff', marginBottom: '0.5rem' }}>Info</p>
+                        <div className="hover-reveal" style={{ fontSize: '1.5rem', fontWeight: '500', color: '#fff' }}>
+                            <span>Kit@kitsimon.co</span>
+                            <span>Kit@kitsimon.co</span>
+                        </div>
+                    </div>
+                </div>
             </motion.main>
         </>
     );
